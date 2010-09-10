@@ -87,17 +87,23 @@ class RID {
     $results = new RIDResults();
 
     $token = strtok($text, ' ');
+    foreach($this->categories as $category) {
+      $results->category_count[$category] = 0;
+      $results->category_words[$category] = array();
+      $results->category_percentage[$category] = 0;
+    }
+    
     while($token !== false) {
       $token = preg_replace('/[^a-zA-Z]*/', '', $token);
       $category = $this->get_category($token);
-
+      
       if($category) {
         if(!isset($results->category_count[$category])) {
           $results->category_count[$category] = 0;
           $results->category_words[$category] = array();
         }
         $results->category_count[$category]++;
-        array_push($results->category_words[$category], $token);
+        $results->category_words[$category][] = $token;
         $results->word_count++;
       }
 
@@ -107,8 +113,12 @@ class RID {
     foreach($results->category_count as $key => $value) {
       $results->category_percentage[$key] = ($value / $results->word_count) * 100.0;
     }
-
+    
     return $results;
+  }
+
+  public function get_categories() {
+    return $this->categories;
   }
 
   private function get_category($token) {

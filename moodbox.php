@@ -127,10 +127,21 @@ class MoodBox {
           'timestamp' => time(),
           'user' => $user,
       );
-      foreach($temperament['category_percentage'] as $emotion => $value) {
+      $emotions = $this->dictionary->get_categories();
+      foreach($emotions as $key => $emotion) {
+
         //(current day's closing price x Exponent) + (previous day's EMA x (1-Exponent))
-        $newTemperament['category_percentage'][$emotion] = ($analysis[$user]->category_percentage[$emotion] * $exponent) + ($value * (1-$exponent));
+        $percentageCurrent = 0;
+        $percentageTemperament = 0;
+        if(isset($analysis[$user]->category_percentage[$emotion])) {
+          $percentageCurrent = $analysis[$user]->category_percentage[$emotion];
+        }
+        if(isset($temperament['category_percentage'][$emotion])) {
+          $percentageTemperament = $temperament['category_percentage'][$emotion];
+        }
+        $newTemperament['category_percentage'][$emotion] = ($percentageCurrent * $exponent) + ($percentageTemperament * (1-$exponent));
       }
+      
       $this->set_temperament($newTemperament);
     }
 
