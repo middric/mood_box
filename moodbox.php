@@ -17,6 +17,11 @@ class MoodBox {
     $this->torchbox = new Torchboxers();
   }
 
+  /**
+   * Get a stream of new tweets.
+   *
+   * @return array
+   */
   public function get_stream() {
     $rateLimit = $this->get_rate_limit();
     $staff = $this->torchbox->get_employees(1);
@@ -63,6 +68,12 @@ class MoodBox {
     return $timelines;
   }
 
+  /**
+   * Analyze a stream of tweets.
+   *
+   * @param array $timelines
+   * @return array
+   */
   public function analyze_stream($timelines) {
     $analysis = array();
     foreach($timelines as $user => $stream) {
@@ -83,6 +94,12 @@ class MoodBox {
     return $analysis;
   }
 
+  /**
+   * Calcualte the temperament of analyses text based on previous temperaments
+   * and the current emotional state
+   *
+   * @param array $analysis
+   */
   public function calculate_temperament($analysis) {
     $days = 30;
     $exponent = 2 / ($days + 1);
@@ -119,11 +136,22 @@ class MoodBox {
 
   }
 
+  /**
+   * Save the temperament into the database.
+   *
+   * @param array $temperament
+   * @return array
+   */
   private function set_temperament($temperament) {
     $collection = $this->db->temperaments;
     return $collection->insert($temperament, true);
   }
 
+  /**
+   * Save the analysis into the database.
+   *
+   * @param array $analysis
+   */
   private function set_analysis($analysis) {
     $collection = $this->db->user_moods;
     foreach($analysis as $user => $data) {
@@ -132,6 +160,12 @@ class MoodBox {
     }
   }
 
+  /**
+   * Get user temperament data from the database. Expects twitter username.
+   *
+   * @param string $user
+   * @return array
+   */
   private function get_temperament($user) {
     $collection = $this->db->temperaments;
     $conditions = array('user' => $user);
@@ -142,6 +176,13 @@ class MoodBox {
     }
   }
 
+  /**
+   * Get analysis details from the database, pass in an array of
+   * query parameters.
+   *
+   * @param array $options
+   * @return MongoCursorObject
+   */
   private function get_analysis($options) {
     $collection = $this->db->user_moods;
     $sort = array('timestamp' => -1);
@@ -149,6 +190,12 @@ class MoodBox {
     return $data;
   }
 
+  /**
+   * Set the since_id value in the database.
+   *
+   * @param int $since_id
+   * @return array
+   */
   private function set_since_id($since_id) {
     $collection = $this->db->lastTweet;
     $collection->remove(array(), true);
@@ -156,6 +203,11 @@ class MoodBox {
     return $collection->insert($data, true);
   }
 
+  /**
+   * Get twitter rate limiting object.
+   *
+   * @return object
+   */
   private function get_rate_limit() {
     $limit = $this->twitter->get('account/rate_limit_status');
 
