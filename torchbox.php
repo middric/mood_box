@@ -38,6 +38,14 @@ class Torchboxers {
     }
     return $this->employees;
   }
+
+  public function get_employee($key) {
+    if(isset($this->employees[$key])) {
+      return $this->employees[$key];
+    }
+
+    return FALSE;
+  }
 }
 
 ?>
